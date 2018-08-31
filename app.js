@@ -24,9 +24,7 @@ app.use((req, res, next) => {
 
 //rutas
 app.use('/', express.static('client', {redirect: false}));
-
 app.use('/api', user_routes);
-
 app.get('*', function(req, res, next){
     res.sendFile(path.resolve('client/index.html'));
 });
