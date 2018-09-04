@@ -42,12 +42,10 @@ function saveUser(req, res){
                     if(users && users.length >= 1){
                         return res.status(200).send({message: 'El email ya está en uso'})
                     }else{
-                        console.log(params.password);
                         const salt = 10;
                         bcrypt.hash(params.password, salt,(err, hash) => {
                             
                             user.password = hash;
-                            console.log(hash);
                             
            
                             user.save((err, userStored) => {

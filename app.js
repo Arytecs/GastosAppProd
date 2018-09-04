@@ -31,4 +31,3 @@ app.get('*', function(req, res, next){
 
 //exportar
 module.exports = app;
-
