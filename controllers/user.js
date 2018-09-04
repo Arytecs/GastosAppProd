@@ -1,6 +1,6 @@
 'use strict'
 
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt');
 var User = require('../models/user');
 var jwt = require('../services/jwt')
 var mongoosePaginate = require('mongoose-pagination')
@@ -42,8 +42,13 @@ function saveUser(req, res){
                     if(users && users.length >= 1){
                         return res.status(200).send({message: 'El email ya está en uso'})
                     }else{
-                        bcrypt.hash(params.password, null, null, (err, hash) => {
+                        console.log(params.password);
+                        const salt = 10;
+                        bcrypt.hash(params.password, salt,(err, hash) => {
+                            
                             user.password = hash;
+                            console.log(hash);
+                            
            
                             user.save((err, userStored) => {
                                 if(err) return res.status(500).send({ message: 'Error al guardar el usuario' });
@@ -77,8 +82,6 @@ function loginUser(req, res){
         if(user){
             bcrypt.compare(password, user.password, (err, check) => {
                 if(check){
-                    console.log(user);
-
                     if(params.gettoken){
                         // generar y devovler tokken
                         return res.status(200).send({
@@ -164,7 +167,7 @@ function uploadImage(req, res){
     }
     if(req.files){
         var file_path = req.files.avatar.path;
-        var file_split = file_path.split('/');
+        var file_split = file_path.split('\\');
 
         var file_name = file_split[2];
 
@@ -208,6 +211,35 @@ function getImageFile(req, res){
     })
 }
 
+function deleteImage(req, res){
+    var userId = req.user.sub;
+
+    if(userId != req.params.id){
+        return res.status(200).send({message: 'Solo puedes elimar tu propio avatar'});
+    }
+
+    User.findByIdAndUpdate(userId, {avatar: ''}, (err, user) => {
+        if(err) return res.status(500).send({message: 'Error en la petición'});
+
+        if(!user) return res.status(404).send({message: 'Usuario no encontrado'});
+
+        fs.unlink('./uploads/users/' + user.avatar, (err) => {
+            return res.status(200).send({user});
+        });
+    });
+}
+
+function deleteUser(req, res){
+    var userId = req.user.sub
+    if(userId != req.params.id){
+        return res.status(200).send({message: 'Solo puedes elimar tu propia cuenta'});
+    }
+
+    User.findByIdAndRemove(userId, (err, user) => {
+
+    });
+}
+
 module.exports = {
     home,
     pruebas,
@@ -217,5 +249,6 @@ module.exports = {
     getUsers,
     updateUser,
     uploadImage,
-    getImageFile
+    getImageFile,
+    deleteImage
 }
