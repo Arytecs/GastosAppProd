@@ -2,7 +2,7 @@ open-iconic@1.1.1
 MIT License
 MIT License
 
-bootstrap@4.1.1
+bootstrap@4.1.3
 MIT
 The MIT License (MIT)
 
